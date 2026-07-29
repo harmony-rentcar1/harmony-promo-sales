@@ -19,6 +19,14 @@
 -->
 <html lang="ko">
 <head>
+<!-- Google Analytics (GA4) - 에이전시/영업용 페이지 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VW4J6BLTK6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VW4J6BLTK6');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="robots" content="noindex, nofollow">
@@ -157,6 +165,8 @@
   }
   .card.expanded .chevron{ transform:rotate(180deg); }
 
+
+
   .dday{
     position:absolute; top:8px; right:8px; z-index:2; max-width:48%; text-align:right; line-height:1.3;
     font-family:'Share Tech Mono',monospace; font-size:16px; font-weight:700; color:#fff;
@@ -172,9 +182,18 @@
 
   /* detail (expanded) state */
   .card-detail{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
-  .card.expanded .card-detail{ max-height:220px; }
+  .card.expanded .card-detail{ max-height:320px; }
   .card-detail-inner{ padding:18px 18px 20px; }
   .card-detail-inner p{font-size:13px; color:var(--text-dim); line-height:1.55;}
+  .dl-btns{ display:flex; gap:8px; margin-top:14px; }
+  .dl-btn{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    background:var(--panel-alt); color:var(--text); font-size:12px; font-weight:600;
+    border:1px solid var(--divider); border-radius:8px; padding:10px 8px; cursor:pointer;
+    line-height:1.3; text-align:center;
+  }
+  .dl-btn:hover{ border-color:var(--amber); color:var(--amber); }
+  .dl-btn:active{ transform:scale(.97); }
   .card-cta{
     margin-top:12px; display:inline-flex; align-items:center; gap:6px; font-size:12.5px;
     color:var(--amber); font-weight:500;
@@ -625,6 +644,10 @@ CONFIG.featured.forEach((p, i)=>{
       <div class="card-detail-inner">
         <h3>${p.vehicle}</h3>
         <p>${p.desc}</p>
+        <div class="dl-btns">
+          <button type="button" class="dl-btn" id="fdl-base-${i}">⬇ 가로형 이미지 다운로드</button>
+          <button type="button" class="dl-btn" id="fdl-detail-${i}">⬇ 상세 이미지 다운로드</button>
+        </div>
       </div>
     </div>
   `;
@@ -639,6 +662,25 @@ CONFIG.featured.forEach((p, i)=>{
     setBannerHeight(bannerEl, expanding);
     // 이미지 전환은 CSS(.card.expanded .img-base/.img-alt)가 크로스페이드로 처리합니다
   });
+  function downloadImg(src, suffix){
+    const ext = src.startsWith('data:image/png') ? 'png' : (src.startsWith('data:image/jpeg') ? 'jpg' : 'img');
+    const safeName = p.vehicle.replace(/[\\/?%*:|"<>]/g, '').trim();
+    const a = document.createElement('a');
+    a.href = src;
+    a.download = `${safeName}${suffix}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+  card.querySelector(`#fdl-base-${i}`).addEventListener('click', (e)=>{
+    e.stopPropagation();
+    downloadImg(p.image, '_가로형');
+  });
+  card.querySelector(`#fdl-detail-${i}`).addEventListener('click', (e)=>{
+    e.stopPropagation();
+    downloadImg(altImage, '_상세');
+  });
+
   featuredEl.appendChild(card);
   featuredTagRefs.push({ el: document.getElementById(`fdday-${i}`), item: p, card });
 });
